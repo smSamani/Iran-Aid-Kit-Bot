@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import shutil
@@ -15,12 +16,17 @@ BASE_DIR = Path(__file__).resolve().parent
 DOWNLOADS_DIR = BASE_DIR / "downloads"
 NEWS_DATA_DIR = BASE_DIR / "news_data"
 TELETHON_SESSION_PATH = BASE_DIR / ".telethon_session"
+TELETHON_BOT_MEDIA_SESSION_PATH = BASE_DIR / ".telethon_bot_media.session"
+LOCAL_BOT_API_DATA_DIR = BASE_DIR / "telegram-bot-api-data"
+LOCAL_BOT_API_RUNTIME_FILE = BASE_DIR / ".local_bot_api_runtime.json"
+DEFAULT_LOCAL_BOT_API_SHARED_DOWNLOADS_PATH = "/downloads"
 TELEGRAM_UPLOAD_LIMIT_BYTES = 50 * 1024 * 1024
 LOCAL_BOT_API_UPLOAD_LIMIT_BYTES = 2000 * 1024 * 1024
 DEFAULT_NEWS_LIMIT = 30
 AI_REFERENCE_POST_LIMIT = 200
 YOUTUBE_RESULT_LIMIT = 10
 CALLBACK_PREFIX = "yt"
+DEFAULT_VIDEO_COMPRESS_MAX_INPUT_BYTES = 200 * 1024 * 1024
 
 
 @dataclass(slots=True)
@@ -33,6 +39,7 @@ class Settings:
     gemini_api_key: str
     telegram_phone: str | None = None
     keep_downloaded_videos: bool = False
+    video_compress_max_input_bytes: int = DEFAULT_VIDEO_COMPRESS_MAX_INPUT_BYTES
     local_bot_api_url: str | None = None
     local_bot_api_file_url: str | None = None
     local_bot_api_shared_downloads_path: str | None = None
@@ -71,6 +78,7 @@ def configure_logging() -> None:
 def load_settings() -> Settings:
     """Load and validate required environment variables."""
     load_dotenv(BASE_DIR / ".env")
+    runtime_config = load_local_bot_api_runtime_config()
 
     required_keys = {
         "TELEGRAM_BOT_TOKEN": os.getenv("TELEGRAM_BOT_TOKEN"),
@@ -94,10 +102,40 @@ def load_settings() -> Settings:
         gemini_api_key=required_keys["GEMINI_API_KEY"] or "",
         telegram_phone=os.getenv("TELEGRAM_PHONE"),
         keep_downloaded_videos=(os.getenv("KEEP_DOWNLOADED_VIDEOS", "false").lower() == "true"),
+        video_compress_max_input_bytes=int(
+            os.getenv(
+                "VIDEO_COMPRESS_MAX_INPUT_BYTES",
+                str(DEFAULT_VIDEO_COMPRESS_MAX_INPUT_BYTES),
+            )
+        ),
         local_bot_api_url=os.getenv("LOCAL_BOT_API_URL"),
         local_bot_api_file_url=os.getenv("LOCAL_BOT_API_FILE_URL"),
-        local_bot_api_shared_downloads_path=os.getenv("LOCAL_BOT_API_SHARED_DOWNLOADS_PATH"),
+        local_bot_api_shared_downloads_path=(
+            runtime_config.get("shared_downloads_path")
+            or os.getenv("LOCAL_BOT_API_SHARED_DOWNLOADS_PATH")
+            or DEFAULT_LOCAL_BOT_API_SHARED_DOWNLOADS_PATH
+        ),
     )
+
+
+def load_local_bot_api_runtime_config() -> dict[str, str]:
+    """Load ephemeral runtime overrides written by the local Bot API launchers."""
+    if not LOCAL_BOT_API_RUNTIME_FILE.is_file():
+        return {}
+
+    try:
+        content = json.loads(LOCAL_BOT_API_RUNTIME_FILE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+    if not isinstance(content, dict):
+        return {}
+
+    return {
+        key: value
+        for key, value in content.items()
+        if isinstance(key, str) and isinstance(value, str)
+    }
 
 
 def get_yt_dlp_js_runtimes() -> dict[str, dict[str, str]] | None:
