@@ -86,6 +86,19 @@ Reliability rules:
 - If information is incomplete, say it is incomplete.
 - Never pretend you fetched live articles if you did not actually receive source content or retrieval results."""
 
+GENERAL_CHAT_SYSTEM_PROMPT = """You are a helpful Telegram bot assistant.
+
+General behavior:
+- Answer clearly and naturally.
+- If the user writes in Persian, answer in Persian.
+- If the user writes in English, answer in English.
+- Keep responses concise unless the user asks for detail.
+- Optimize answers for Telegram readability on mobile screens.
+- Prefer short paragraphs and simple wording.
+- Do not use markdown syntax unless the user explicitly asks for it.
+- Do not force news structure, source citations, or search-confirmation behavior.
+- If you do not know something, say so simply instead of inventing facts."""
+
 
 SOURCE_ALIAS_MAP = {
     "iranintl": ("iran international", "iranintl", "ایران اینترنشنال"),
@@ -261,7 +274,9 @@ class GeminiChatManager:
         self,
         user_id: int,
         message: str,
-        reference_payloads: dict[str, dict[str, str]],
+        reference_payloads: dict[str, dict[str, str]] | None = None,
+        *,
+        mode: str = "news",
     ) -> ChatResponse:
         """Answer a user message using source-specific reference files and short chat history."""
         cleaned_message = message.strip()
@@ -269,6 +284,38 @@ class GeminiChatManager:
             return ChatResponse("پیام خالی است.")
 
         history = self._sessions.setdefault(user_id, [])
+        if mode != "news":
+            history_text = "\n".join(
+                f"User: {user_text}\nAssistant: {assistant_text}"
+                for user_text, assistant_text in history[-6:]
+            ).strip()
+            prompt = (
+                "Continue the conversation naturally.\n\n"
+                "Recent conversation:\n"
+                f"{history_text or 'None'}\n\n"
+                f"User message:\n{cleaned_message}"
+            )
+            try:
+                response = await self._client.aio.models.generate_content(
+                    model=self._model_name,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=GENERAL_CHAT_SYSTEM_PROMPT,
+                    ),
+                )
+            except Exception as exc:
+                LOGGER.exception("Gemini general chat request failed")
+                raise RuntimeError("Failed to get a response from Gemini.") from exc
+
+            text = getattr(response, "text", "") or ""
+            answer = text.strip()
+            if answer:
+                history.append((cleaned_message, answer))
+                self._sessions[user_id] = history[-10:]
+                return ChatResponse(answer)
+            return ChatResponse("پاسخی تولید نشد.")
+
+        reference_payloads = reference_payloads or {}
         selected_sources = self.detect_sources(cleaned_message)
         excerpts = self.retrieve_relevant_excerpts(cleaned_message, reference_payloads)
         if not excerpts:

@@ -1,160 +1,145 @@
-# telegram-news-ai-bot
+# telegram-news-ai-bot v2
 
-Telegram bot for Persian news monitoring, AI-assisted summaries, source-aware news Q&A, and YouTube search/download.
+A production-oriented Telegram bot for Persian news workflows, Gemini-powered chat, YouTube search/download, and practical file tools.
 
-## Features
+## What is new in V2
 
-- Fetches recent Telegram posts from:
+- Multi-level Persian Telegram menu with improved UX
+- Direct Gemini chat from the main AI section
+- Source-aware news summaries with denser, more useful message formatting
+- YouTube quality picker with separate audio-only download support
+- File tools:
+  - Audio Compressor
+  - Video Compressor
+  - PDF Compressor
+  - PDF Slicer
+  - PDF Merger
+- Automatic splitting of oversized compressed audio/video outputs into sub-16 MB parts for easier delivery in messaging apps with strict file limits
+
+## Core Features
+
+- News source summaries for:
   - Iran International
   - Vahid Online
   - Radio Farda
   - Independent Farsi
   - BBC Persian
-- Groups and summarizes news with Gemini
-- Supports AI chat with source-aware news references
-- Searches YouTube and sends selected videos in Telegram
-- Supports large uploads with a local Telegram Bot API server
+- News-aware AI chat from the News section
+- General Gemini chat from the main AI section
+- YouTube search
+- YouTube direct URL download
+- YouTube quality selection
+- Separate audio-only YouTube download
+- Audio compression to MP3 with Telegram-safe splitting when needed
+- Video compression with CPU, GPU, and Parallel modes
+- PDF compression with low / medium / high levels
+- PDF slicing by page range
+- PDF merging for multiple uploaded files
 
 ## Requirements
 
 - Python 3.11+
+- ffmpeg
+- Ghostscript
 - Telegram bot token from BotFather
-- Telegram API ID and API hash from my.telegram.org
+- Telegram API ID and API hash from [my.telegram.org](https://my.telegram.org)
 - Gemini API key
-- `ffmpeg` recommended for better video handling
-- `node` recommended for more reliable YouTube extraction with `yt-dlp`
+- `node` is recommended for more reliable `yt-dlp` extraction
+- Docker is optional if you want a local Telegram Bot API server for larger media workflows
+- You can also run the local Telegram Bot API natively without Docker
 
-## Project Structure
-
-```text
-telegram-news-ai-bot/
-├── bot.py
-├── config.py
-├── news_fetcher.py
-├── youtube_search.py
-├── video_downloader.py
-├── ai_summary.py
-├── ai_chat.py
-├── auth_telethon.py
-├── requirements.txt
-├── .env.example
-└── README.md
-```
-
-## Runtime Directories
-
-These directories are created automatically when needed. Users do not need to create them manually.
-
-- `downloads/`
-  - Stores downloaded YouTube videos before sending them in Telegram
-- `news_data/`
-  - Stores generated text files for fetched Telegram news posts
-- `.telethon_session.session`
-  - Local Telethon login session for channel access
-- `telegram-bot-api-data/`
-  - Optional local Telegram Bot API server data
-
-These files and folders are excluded from Git by `.gitignore`.
-
-## Portability
-
-This project does not depend on your personal filesystem path.
-
-- Runtime paths are built dynamically from the project folder
-- No hardcoded `/Users/...` paths are required for normal usage
-- Another user can clone the repository anywhere on their machine and run it from that directory
-
-The main configuration logic is based on the current project directory in `config.py`.
-
-## Environment Variables
-
-Copy `.env.example` to `.env` and fill in your values:
+## Installation
 
 ```bash
+git clone <your-repo-url>
+cd telegram-news-ai-bot
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Required variables:
+Then fill in `.env` with your own credentials.
 
-```env
-TELEGRAM_BOT_TOKEN=
-TELEGRAM_API_ID=
-TELEGRAM_API_HASH=
-GEMINI_API_KEY=
-```
-
-Optional variables:
-
-```env
-TELEGRAM_PHONE=
-KEEP_DOWNLOADED_VIDEOS=false
-LOCAL_BOT_API_URL=
-LOCAL_BOT_API_FILE_URL=
-LOCAL_BOT_API_SHARED_DOWNLOADS_PATH=
-```
-
-## Setup
-
-1. Clone the repository
-2. Enter the project folder
-3. Install dependencies
-4. Create `.env`
-5. Run the bot
+## Running the Bot
 
 ```bash
-pip install -r requirements.txt
 python bot.py
 ```
 
-## First-Time Telethon Authorization
+## First-Time Telegram Authorization
 
-For Telegram channel reading, Telethon may require a one-time user authorization:
+For Telegram channel reading, Telethon may require a one-time authorization:
 
 ```bash
 python auth_telethon.py
 ```
 
-This creates a local `.telethon_session.session` file in the project directory.
+## Commands
 
-## Main Commands
-
-- `/start` - show the main menu
+- `/start` - open the main menu
+- `/news` - open the news section
+- `/youtube` - open the YouTube section
+- `/tools` - open the file tools section
+- `/ai` - start direct Gemini chat
 - `/help` - show help
-- `/youtube` - start YouTube search flow
-- `/chat` - start AI chat mode
-- `/endchat` - end AI chat mode
-- `/news` - fetch the default source summary
 
-## News Sources
+Compatibility aliases kept in code:
 
-The bot is configured to work with these Telegram sources:
+- `/chat` - start news-aware AI chat
+- `/endchat` - end the active AI chat
 
-- Iran International
-- Vahid Online
-- Radio Farda
-- Independent Farsi
-- BBC Persian
+## Runtime Directories
 
-## Optional Local Bot API Setup
+These are created automatically when needed and should not be committed:
 
-If you want to upload videos larger than 50 MB, use a local `telegram-bot-api` server and set:
+- `downloads/`
+- `news_data/`
+- `telegram-bot-api-data/`
+- `.telethon_session.session`
+- `.telethon_bot_media.session`
 
-- `LOCAL_BOT_API_URL`
-- `LOCAL_BOT_API_FILE_URL`
-- `LOCAL_BOT_API_SHARED_DOWNLOADS_PATH`
+## Path Portability
 
-Without a local Bot API server, standard bot upload limits apply.
+This project is portable by default:
 
-## Notes
+- Runtime paths are derived from the project directory
+- No personal `/Users/...` paths are required
+- Another user can clone the project anywhere and run it there
+- The local Bot API helper script mounts the downloads directory automatically, so users do not need to manually fix the shared downloads path
 
-- Do not commit your `.env` file
-- Do not commit `.telethon_session.session`
-- Do not commit generated `downloads/`, `news_data/`, or `telegram-bot-api-data/`
-- If AI chat cannot answer from local reference files, it can ask for permission to search the internet
+## Local Telegram Bot API (Optional)
+
+If you want better handling for larger Telegram media flows, start the local Bot API server with:
+
+```bash
+./start_local_bot_api.sh
+```
+
+By default, the script automatically mounts:
+
+- `telegram-bot-api-data/` -> Telegram Bot API storage
+- `downloads/` -> `/downloads` inside the container
+
+So the default `.env.example` works without manual path edits.
+
+If Docker Desktop is unavailable on your machine, you can also run the local Bot API server natively:
+
+```bash
+./start_local_bot_api_native.sh
+```
+
+The native launcher automatically writes the runtime path mapping needed for large local uploads from `downloads/`.
+
+## Security Notes
+
+- Never commit `.env`
+- Never commit real API keys or bot tokens
+- Never commit runtime sessions or generated media
 
 ## Troubleshooting
 
-### Bot cannot fetch Telegram news
+### Telegram news fetching fails
 
 Run:
 
@@ -162,14 +147,20 @@ Run:
 python auth_telethon.py
 ```
 
-### Large video upload fails
+### Large media sending fails
 
-Check your local Telegram Bot API server configuration and the shared downloads path.
+Make sure your local Telegram Bot API server is actually running:
 
-### YouTube extraction is incomplete
+```bash
+./start_local_bot_api.sh
+```
 
-Make sure `yt-dlp` is up to date and `node` is installed.
+Or, if you are using the native binary instead of Docker:
 
-### Gemini search fails with quota errors
+```bash
+./start_local_bot_api_native.sh
+```
 
-Check your Gemini API quota, rate limits, and billing status.
+### YouTube extraction is unstable
+
+Update `yt-dlp` and make sure `node` is installed.

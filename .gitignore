@@ -1,19 +1,26 @@
-.env
-.env.*
-!.env.example
-
 .DS_Store
+.env
 __pycache__/
 *.py[cod]
 
-.telethon_session
+# Runtime sessions
 .telethon_session.session
+.telethon_bot_media.session
+.telethon_bot_media_test.session
 
+# Runtime/generated data
 downloads/
 news_data/
 telegram-bot-api-data/
+.local_bot_api_runtime.json
+telegram-bot-api-native.log
+telegram-bot-api-native.pid
+.vendor/
 
-.pytest_cache/
-.mypy_cache/
-.venv/
-venv/
+# Local user data / caches
+bot_users.json
+
+# Temporary downloader artifacts
+*.part
+*.ytdl
+*.info.json
