@@ -16,7 +16,6 @@ This public package contains the Telegram-side v3 feature set and excludes the p
 - 📦 Added a support-bundle workflow that can find and collect Slipnet, Vless, Telegram Proxy, and NPVTunnel configs from well-known Iranian channels and package them into a password-protected zip archive.
 - 🛡️ Added Telegram-side owner/admin approval controls and a user-management workflow for keeping the bot private and manageable.
 - 🧩 Improved local Telegram Bot API support with both containerized and native launcher options.
-- 🔒 Removed built-in search and AI activity analytics from this release package.
 
 ## 🧠 Core Features
 
