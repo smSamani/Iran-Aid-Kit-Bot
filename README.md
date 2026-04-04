@@ -2,7 +2,6 @@
 
 🚀 A production-oriented Telegram bot for Persian news workflows, AI chat, YouTube tools, and practical file utilities.
 
-This public package contains the Telegram-side v3 feature set and excludes the private bridge transport layer, bundled local binaries, secrets, runtime data, and user-generated state.
 
 ## ✨ What Changed From v2
 
