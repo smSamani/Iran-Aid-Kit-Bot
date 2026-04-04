@@ -1,4 +1,4 @@
-# telegram-news-ai-bot v3 Public Release
+# Iran-Aid-Kit-Bot v3 Public Release
 
 🚀 A production-oriented Telegram bot for Persian news workflows, AI chat, YouTube tools, and practical file utilities.
 
