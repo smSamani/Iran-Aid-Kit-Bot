@@ -1,0 +1,1 @@
+🌟 **A Comprehensive Telegram Bot** 🤖 AI-powered Persian news summaries, 💬 intelligent chat, 📺 YouTube tools, and 🛠️ versatile file utilities. Featuring Developer Mode 🚀 for advanced workflows and 🔐 privacy-focused design!
