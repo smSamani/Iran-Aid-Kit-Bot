@@ -1,0 +1,13 @@
+services:
+  deepseek2api:
+    container_name: deepseek2api
+    build:
+      context: .
+      dockerfile: Dockerfile.deepseek
+    image: local/deepseek-free-api-patched:latest
+    restart: always
+    ports:
+      - "${DEEPSEEK_API_PORT:-8000}:8000"
+    environment:
+      TZ: Asia/Shanghai
+      DEEP_SEEK_CHAT_AUTHORIZATION: ${DEEPSEEK_CHAT_AUTH_TOKENS}

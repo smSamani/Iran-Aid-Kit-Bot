@@ -1,0 +1,8 @@
+FROM vinlic/deepseek-free-api:latest
+
+COPY patches/deepseek_proxy_patch.js /tmp/deepseek_proxy_patch.js
+COPY patches/deepseek_receive_stream.jsfrag /tmp/deepseek_receive_stream.jsfrag
+COPY patches/deepseek_create_trans_stream.jsfrag /tmp/deepseek_create_trans_stream.jsfrag
+
+RUN node /tmp/deepseek_proxy_patch.js \
+    && rm -f /tmp/deepseek_proxy_patch.js /tmp/deepseek_receive_stream.jsfrag /tmp/deepseek_create_trans_stream.jsfrag

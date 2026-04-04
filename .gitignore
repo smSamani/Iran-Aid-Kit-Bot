@@ -1,0 +1,31 @@
+.DS_Store
+.env
+.venv/
+.vendor/
+__pycache__/
+*.py[cod]
+
+# Runtime sessions
+.telethon_session.session
+.telethon_bot_media.session
+.telethon_bot_media_test.session
+
+# Runtime/generated data
+downloads/
+news_data/
+runtime_logs/
+telegram-bot-api-data/
+.local_bot_api_runtime.json
+telegram-bot-api-native.log
+telegram-bot-api-native.pid
+rubika_access_control.json
+telegram_access_control.json
+
+# Local user data / caches
+bot_users.json
+
+# Temporary downloader artifacts
+*.part
+*.ytdl
+*.info.json
+Archive.zip
