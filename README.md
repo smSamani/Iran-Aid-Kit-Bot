@@ -97,3 +97,13 @@ If you want better handling for larger Telegram media flows, you can start the l
 ## 📁 Runtime Data
 
 Runtime directories and local state are created only when needed and are ignored by git in this release package.
+
+## 📄 License
+
+The original source code and original project materials in this repository are licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+You may use, modify, and redistribute them only for noncommercial purposes. Commercial use, selling the project, charging for access, or using it as part of a paid product or service is not permitted.
+
+**Required attribution:** Copyright © Soroush Mohammadi Samani (smSamani). This attribution must remain with every copy, modified version, and redistribution.
+
+Third-party dependencies, datasets, APIs, trademarks, and other materials remain subject to their own licenses and terms.
